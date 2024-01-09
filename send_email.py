@@ -1,32 +1,43 @@
 import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.mime.application import MIMEApplication
 import os
 from dotenv import load_dotenv
+import random
+import string
 
 load_dotenv()
 
+def generate_code():
+    chracter = string.digits
+
+    random_code = ''.join(random.choice(chracter) for _ in range(6))
+    return random_code
+
 def send_email_virification(receiver_email: str, verification_code: str):
 
-    email = os.getenv('EMAIL')
-    password = os.getenv('PASSWORD')
-    print(email, password)
+    email = os.getenv('MAIL_USERNAME')
+    password = os.getenv('MAIL_PASSWORD')
+    host = os.getenv('HOST')
 
-    subject = 'Verification Code'
-    body = f'Your code is: {verification_code}'
+    subject = "Your OTP Code"
+    body = f"OTP Code: {verification_code}\n Your code expired in 1 minutes"
 
-    message = MIMEMultipart()
-    message['from'] = email
-    message['to'] = receiver_email
-    message['Subject'] = subject
+    msg = f"Subject: {subject}\n\n{body}"
 
-    message.attach(MIMEText(body, 'plain'))
+    try:
+        smtp = smtplib.SMTP(host, 587)
 
-    with smtplib.SMTP('smtp.gmail.com', 587) as server:
-        server.starttls()
-        server.login(email, password)
+        smtp.ehlo()
 
-        server.sendmail(email, receiver_email, message.as_string())
+        smtp.starttls()
 
+        smtp.login(email, password)
+
+        smtp.sendmail(email, receiver_email, msg)
+
+        smtp.quit()
+        
+        print(f'Email send successfuly')
+
+    except Exception as err:
+        print(f'Invalid send email, Error: {err}')
 

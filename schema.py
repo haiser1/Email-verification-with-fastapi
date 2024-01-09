@@ -8,3 +8,10 @@ class UserSchema(BaseModel):
 class LoginUser(BaseModel):
     email: EmailStr
     password: str
+
+class EmailVerified(BaseModel):
+    email: EmailStr
+    otpCode: str
+
+class RefreshOtp(BaseModel):
+    email: EmailStr
